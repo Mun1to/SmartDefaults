@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--
+  SmartDefaults · Referencia — ARRANQUE INTELIGENTE DE TEMA E IDIOMA
+  ====================================================================================
+  QUÉ RESUELVE: que la web cargue ya en el tema (claro/oscuro) y el idioma correctos
+  según las preferencias que el sistema/navegador del visitante YA conoce — sin que
+  tenga que tocar ningún toggle, y sin el parpadeo típico de "primero pinto mal, luego
+  corrijo". El toggle sigue existiendo, pero solo para CAMBIAR el valor por defecto.
+
+  LAS DOS REGLAS DE ORO (verificadas, no moda):
+    1. TEMA — el script que decide el tema va INLINE, ANTES del <link rel="stylesheet">.
+       Si se decide después, el navegador ya pintó con el tema por defecto: eso ES el
+       parpadeo (FOUC). El orden de las etiquetas en el <head> es la clave de todo.
+    2. IDIOMA — se AUTO-selecciona, nunca se FUERZA. Solo actúa en la primera visita
+       (sin elección guardada). En cuanto el usuario elige (o ya hay algo guardado),
+       esa elección manda para siempre — la web no "adivina" en cada carga.
+
+  Este archivo es la referencia completa: implementa la regla 1 en su variante con
+  override manual (Tier B) y la regla 2 entera.
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartDefaults — arranque de tema e idioma</title>
+
+<!-- ====================================================================================
+     PASO 1 — EL SCRIPT MÁS IMPORTANTE DE ESTE ARCHIVO.
+     Va ANTES de cualquier CSS. Decide tema e idioma de forma SÍNCRONA (bloquea el
+     parseo un instante, pero es tan barato — dos lecturas de localStorage/matchMedia —
+     que no se nota) y los deja escritos en <html> antes de que el navegador pinte nada.
+     ==================================================================================== -->
+<script>
+  (function () {
+    var html = document.documentElement;
+
+    // --- TEMA: localStorage (elección explícita) > preferencia del sistema > claro ---
+    var theme =
+      localStorage.getItem("sd-theme") ||
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    html.dataset.theme = theme;
+
+    // --- IDIOMA: localStorage (elección explícita) > match con el navegador > nativo ---
+    var SUPPORTED = ["es", "en"];              // idiomas que esta web realmente tiene
+    var NATIVE = "es";                          // el idioma en el que está escrito el sitio
+    var lang = localStorage.getItem("sd-lang");
+    if (!lang) {
+      // navigator.languages (plural) es más fiable que el viejo navigator.language:
+      // trae la lista ordenada de preferencias reales del usuario, no solo la primera.
+      var prefs = navigator.languages || [navigator.language || NATIVE];
+      lang = NATIVE;
+      for (var i = 0; i < prefs.length; i++) {
+        var code = prefs[i].slice(0, 2).toLowerCase();   // "es-ES" → "es"
+        if (SUPPORTED.indexOf(code) !== -1) { lang = code; break; }
+      }
+      // OJO: no lo guardamos todavía en localStorage — esto es una SUGERENCIA de la
+      // primera visita, no una elección del usuario. Si mañana cambia el idioma del
+      // navegador y sigue sin haber elegido nada explícito, queremos poder re-detectar.
+    }
+    html.lang = lang;
+    html.dataset.lang = lang;
+  })();
+</script>
+
+<!-- El CSS carga DESPUÉS del script de arriba: cuando el navegador lo aplique, <html>
+     ya tiene data-theme y data-lang correctos. Cero parpadeo. -->
+<style>
+  /* color-scheme (nativo): hace que scrollbars, inputs y selects del NAVEGADOR también
+     usen el tema correcto, no solo tu CSS. Barato y se olvida siempre. */
+  :root { color-scheme: light dark; }
+
+  :root, html[data-theme="light"] {
+    --bg: #f5f6fa; --text: #14151a; --muted: #5b5f6e; --card: #ffffff; --line: #e3e5ec;
+  }
+  html[data-theme="dark"] {
+    --bg: #0e0e12; --text: #f2f2f5; --muted: #9a9aa8; --card: #17171e; --line: #26262f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; gap: 28px;
+    background: var(--bg); color: var(--text); font-family: system-ui, sans-serif;
+    transition: background .25s, color .25s;                 /* solo al pulsar el toggle */
+  }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px 32px; max-width: 420px; text-align: center; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p.muted { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+  .row { display: flex; gap: 10px; justify-content: center; }
+  button { font: inherit; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line);
+    background: transparent; color: var(--text); cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <!-- data-i18n-* : textos intercambiados por el diccionario de abajo. Para una web real,
+       cada bloque de texto traducible lleva su propio data-i18n="clave". -->
+  <h1 data-i18n="title">Hola</h1>
+  <p class="muted" data-i18n="sub">Detectado desde tu sistema, sin tocar nada.</p>
+
+  <div class="row">
+    <button id="btn-theme" aria-pressed="false">
+      <span data-i18n="toggleTheme">Cambiar tema</span>
+    </button>
+    <button id="btn-lang" aria-pressed="false">
+      <span data-i18n="toggleLang">Switch language</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // ================================================================================
+    // PASO 2 — Diccionario mínimo de i18n (sin librería: para 2 idiomas y pocos textos,
+    // una librería completa es sobre-ingeniería). Para una web con muchas páginas,
+    // esto se sustituye por un sistema de traducciones real, pero el BOOT (paso 1)
+    // no cambia: la clave siempre es decidir el idioma ANTES o LO MÁS PRONTO posible.
+    // ================================================================================
+    var STRINGS = {
+      es: { title: "Hola", sub: "Detectado desde tu sistema, sin tocar nada.",
+            toggleTheme: "Cambiar tema", toggleLang: "Switch language" },
+      en: { title: "Hello", sub: "Detected from your system, no clicks needed.",
+            toggleTheme: "Toggle theme", toggleLang: "Cambiar idioma" }
+    };
+
+    function applyStrings(lang) {
+      var dict = STRINGS[lang] || STRINGS.es;
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var key = el.dataset.i18n;
+        if (dict[key]) el.textContent = dict[key];
+      });
+    }
+    // Aplicamos el idioma ya decidido en el paso 1 (guardado en html.dataset.lang).
+    applyStrings(document.documentElement.dataset.lang);
+
+    // ================================================================================
+    // PASO 3 — Toggles manuales: la elección del usuario aquí es EXPLÍCITA y se guarda
+    // para siempre. A partir de este clic, el sistema deja de "adivinar" para él.
+    // ================================================================================
+    var html = document.documentElement;
+    var btnTheme = document.getElementById("btn-theme");
+    var btnLang = document.getElementById("btn-lang");
+
+    function syncPressed() {
+      btnTheme.setAttribute("aria-pressed", html.dataset.theme === "dark");
+      btnLang.setAttribute("aria-pressed", html.dataset.lang === "en");
+    }
+    syncPressed();
+
+    btnTheme.addEventListener("click", function () {
+      var next = html.dataset.theme === "dark" ? "light" : "dark";
+      html.dataset.theme = next;
+      localStorage.setItem("sd-theme", next);      // elección explícita: se respeta siempre
+      syncPressed();
+    });
+
+    btnLang.addEventListener("click", function () {
+      var next = html.dataset.lang === "en" ? "es" : "en";
+      html.lang = next;
+      html.dataset.lang = next;
+      localStorage.setItem("sd-lang", next);        // elección explícita: se respeta siempre
+      applyStrings(next);
+      syncPressed();
+    });
+
+    // ================================================================================
+    // PASO 4 — Seguir el tema del SISTEMA en vivo, pero SOLO si el usuario no eligió
+    // manualmente. Si mañana cambias Windows de oscuro a claro con la pestaña abierta,
+    // la web debe acompañar — a menos que ya hayas pulsado el toggle antes.
+    // ================================================================================
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
+      if (localStorage.getItem("sd-theme")) return;   // hay elección explícita: no tocar
+      html.dataset.theme = e.matches ? "dark" : "light";
+      syncPressed();
+    });
+  })();
+</script>
+</body>
+</html>

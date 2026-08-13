@@ -1,0 +1,13 @@
+{
+  "name": "smart-defaults",
+  "description": "Makes a website start in the visitor's own theme and language, with no flash and no forced redirects.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mun1to",
+    "url": "https://github.com/Mun1to"
+  },
+  "homepage": "https://github.com/Mun1to/SmartDefaults",
+  "repository": "https://github.com/Mun1to/SmartDefaults",
+  "license": "MIT",
+  "keywords": ["dark-mode", "theme", "i18n", "fouc", "prefers-color-scheme", "web"]
+}

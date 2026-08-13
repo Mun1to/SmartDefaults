@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  SmartDefaults · Tier A (EL DEFAULT) — TEMA 100% AUTOMÁTICO, CERO JAVASCRIPT
+  ====================================================================================
+  QUÉ ES: el tema claro/oscuro sigue SIEMPRE al sistema/navegador del visitante, en
+  vivo, sin ningún botón ni icono de sol/luna que el usuario tenga que encontrar y
+  pulsar. Si cambia su Windows de oscuro a claro con la pestaña abierta, la web
+  cambia sola en el mismo instante.
+
+  POR QUÉ ES MEJOR QUE JAVASCRIPT AQUÍ (cuando no necesitas que el usuario elija):
+    - Cero parpadeo POSIBLE: no hay ningún script que pueda "llegar tarde". El
+      navegador aplica el CSS correcto la primera vez que pinta, siempre.
+    - Cero código que mantener: sin localStorage, sin listeners, sin botones.
+    - Sigue al sistema EN VIVO gratis: la media query se re-evalúa sola.
+    - Menos peso, menos bugs posibles, menos superficie de fallo.
+
+  CUÁNDO SÍ HACE FALTA JAVASCRIPT (Tier B, ver boot-prefs.html):
+    Solo si hay una razón de PRODUCTO real para que el usuario pueda fijar un tema
+    distinto al de su sistema (p. ej. una app donde el usuario prefiere leer en
+    oscuro aunque su Windows esté en claro). Si dudas, empieza aquí (Tier A) y
+    sube a Tier B solo si de verdad hace falta — no por defecto, no "por si acaso".
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartDefaults — tema automático sin JS</title>
+<style>
+  /* color-scheme: hace que los controles NATIVOS del navegador (scrollbars, inputs,
+     selects, el color de fondo por defecto antes de que cargue tu CSS) también
+     usen la versión correcta — barato y se olvida siempre. */
+  :root { color-scheme: light dark; }
+
+  /* ===== Paleta CLARA: son las variables por defecto (fuera de cualquier @media) ===== */
+  :root {
+    --bg: #f5f6fa;
+    --text: #14151a;
+    --muted: #5b5f6e;
+    --card: #ffffff;
+    --line: #e3e5ec;
+  }
+
+  /* ===== Paleta OSCURA: el navegador aplica ESTE bloque solo cuando el sistema/
+     navegador del visitante pide oscuro. No hace falta ninguna clase ni atributo:
+     la condición vive en el propio CSS. =====
+     Truco de mantenimiento: usa los MISMOS nombres de variable en ambos bloques
+     (--bg, --text...) y el resto de tu CSS no necesita saber en qué tema está. */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e0e12;
+      --text: #f2f2f5;
+      --muted: #9a9aa8;
+      --card: #17171e;
+      --line: #26262f;
+    }
+  }
+
+  /* El resto de tu CSS es exactamente igual que si no hubiera temas: solo usa las
+     variables. Ni una línea de JS, ni un solo `if`, en todo este archivo. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; gap: 16px;
+    background: var(--bg); color: var(--text); font-family: system-ui, sans-serif;
+  }
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 28px 32px; max-width: 420px; text-align: center;
+  }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Sin botón, sin JavaScript</h1>
+    <p>
+      Cambia el tema de tu sistema (o el "Emulate CSS media" de DevTools) y esta
+      página cambia sola, al instante, sin recargar. Pruébalo.
+    </p>
+  </div>
+</body>
+</html>
