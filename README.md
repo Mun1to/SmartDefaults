@@ -52,7 +52,9 @@ forever after.
 button, breaks bookmarks and confuses crawlers, as Google Search Central states outright. So the
 detection runs only on the first visit, when nothing is stored. Once the visitor picks a language,
 that choice is respected forever and the site never guesses again. The manual selector always stays
-visible.
+visible. If the site serves each language from its own URL (`/es/`, `/en/`), the indexing half of
+that job (structure, `hreflang`, self-referencing canonical) lives in a sister skill,
+[WebIndex](https://github.com/Mun1to/WebIndex).
 
 ## What is in the box
 

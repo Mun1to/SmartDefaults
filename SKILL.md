@@ -76,6 +76,15 @@ vuelve a "adivinar" en cada carga.
 la misma URL, añadir `<link rel="alternate" hreflang="es|en">`. Con el patrón de "misma URL,
 textos intercambiados" no aplica.
 
+⚠️ **Ahí termina esta skill y empieza WebIndex.** SmartDefaults resuelve el arranque en el
+navegador: qué tema y qué idioma ve el visitante al entrar. Lo que decide si esas versiones existen
+para el buscador es otra cosa: qué URLs hay, el `hreflang` con enlaces de ida y vuelta, y que el
+`canonical` de cada idioma apunte a sí mismo y no a otro. Eso es la fase 6 de **WebIndex**. Y ojo,
+porque los dos lados dicen lo mismo por motivos distintos: aquí no se redirige porque rompe el
+botón "atrás" y los marcadores; allí, porque Googlebot rastrea sin cabecera `Accept-Language` y
+sobre todo desde IPs de Estados Unidos, así que una redirección automática lo deja siempre en la
+misma versión y las demás no se indexan nunca.
+
 ## Flujo de trabajo
 
 1. Confirmar que la web es la candidata correcta: ¿tiene o va a tener tema claro/oscuro y/o más de
@@ -127,3 +136,5 @@ mismo sin una sola línea de JavaScript.
 - `plantillas/vanilla/boot-prefs.html`, Tier B (tema con override manual) más idioma completo,
   comentada para entender el porqué de cada línea. Usar solo la mitad de idioma si el tema ya se
   resolvió con Tier A.
+- Skill **WebIndex**, fase 6, para la otra mitad del idioma: estructura de URL, `hreflang` y por
+  qué la redirección automática rompe la indexación.
