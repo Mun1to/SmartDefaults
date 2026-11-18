@@ -12,7 +12,7 @@ Inside Claude Code, two lines:
 /plugin install smart-defaults@vibeset
 ```
 
-If the install summary says `Run /reload-plugins to activate`, run it.
+If the install summary says `Run /reload-plugins to apply`, Claude Code reloads by itself. If it warns and leaves the plugin pending, run `/reload-plugins --force`.
 
 <details>
 <summary>Prefer to install it by hand?</summary>
@@ -49,12 +49,12 @@ goes in `localStorage`, is read by an inline script placed before the first styl
 forever after.
 
 **2. Language: auto-select, never redirect.** Redirecting by browser language breaks the back
-button, breaks bookmarks and confuses crawlers, as Google Search Central states outright. So the
-detection runs only on the first visit, when nothing is stored. Once the visitor picks a language,
+button and bookmarks, and Google Search Central warns it can keep users and search engines from seeing
+every version of the site. So the detection runs only while nothing is stored. Once the visitor picks a language,
 that choice is respected forever and the site never guesses again. The manual selector always stays
 visible. If the site serves each language from its own URL (`/es/`, `/en/`), the indexing half of
 that job (structure, `hreflang`, self-referencing canonical) lives in a sister skill,
-[WebIndex](https://github.com/Mun1to/WebIndex).
+[SiteIndex](https://github.com/Mun1to/SiteIndex).
 
 ## What is in the box
 

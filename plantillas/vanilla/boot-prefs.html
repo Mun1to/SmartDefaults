@@ -37,7 +37,7 @@
     // --- TEMA: localStorage (elección explícita) > preferencia del sistema > claro ---
     var theme =
       localStorage.getItem("sd-theme") ||
-      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     html.dataset.theme = theme;
 
     // --- IDIOMA: localStorage (elección explícita) > match con el navegador > nativo ---
@@ -68,6 +68,9 @@
   /* color-scheme (nativo): hace que scrollbars, inputs y selects del NAVEGADOR también
      usen el tema correcto, no solo tu CSS. Barato y se olvida siempre. */
   :root { color-scheme: light dark; }
+
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
 
   :root, html[data-theme="light"] {
     --bg: #f5f6fa; --text: #14151a; --muted: #5b5f6e; --card: #ffffff; --line: #e3e5ec;

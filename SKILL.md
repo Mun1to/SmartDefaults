@@ -51,24 +51,27 @@ explícita que manda para siempre.
 
 **Bonus barato, aplica a AMBOS tiers:** poner `color-scheme: light dark` en el CSS (o
 `<meta name="color-scheme">`) para que los controles NATIVOS del navegador (barras de scroll,
-inputs, selects) también usen la versión correcta.
+inputs, selects) también usen la versión correcta. En Tier B, además, `color-scheme` sigue a
+`data-theme`: si no, con el sistema en claro y el tema oscuro elegido a mano, la página sale oscura
+y los controles blancos.
 
 ## Idioma: auto-seleccionar, NUNCA forzar
 
-Verificado en la guía de Google Search Central: **redirigir automáticamente** según el idioma del
-navegador rompe el botón "atrás", los marcadores, y confunde a los rastreadores. La regla:
+**Redirigir automáticamente** según el idioma del navegador rompe el botón "atrás" y los marcadores,
+y Google Search Central avisa de que puede impedir que usuarios y buscadores vean todas las versiones
+del sitio. La regla:
 
 **Prioridad de resolución, en este orden:**
 
 1. `localStorage.getItem('<clave>-lang')`, elección explícita previa, se respeta SIEMPRE.
-2. Si NO hay nada guardado (primera visita), mirar `navigator.languages` (más fiable que el viejo
+2. Si NO hay nada guardado, mirar `navigator.languages` (más fiable que el viejo
    `navigator.language`; con backend, la cabecera HTTP `Accept-Language` es aún mejor, pero en
    sitios estáticos no hay acceso a ella) y hacer *match* contra los idiomas soportados de la web.
 3. Si ninguno coincide, el idioma nativo de la web.
 
-**Nunca más de una vez:** el auto-detect solo actúa en la primera visita. En cuanto el usuario
-elige, o simplemente ya hay un valor guardado, esa elección se respeta para siempre: el sitio NO
-vuelve a "adivinar" en cada carga.
+**Solo mientras nadie haya elegido:** lo detectado no se guarda, así que se vuelve a mirar en cada
+carga y sigue al navegador. En cuanto el usuario elige, esa elección se guarda y se respeta para
+siempre: el sitio NO vuelve a "adivinar".
 
 **Siempre visible:** un selector de idioma manual, alcanzable, para quien quiera cambiarlo.
 
@@ -76,10 +79,10 @@ vuelve a "adivinar" en cada carga.
 la misma URL, añadir `<link rel="alternate" hreflang="es|en">`. Con el patrón de "misma URL,
 textos intercambiados" no aplica.
 
-⚠️ **Ahí termina esta skill y empieza WebIndex.** SmartDefaults resuelve el arranque en el
+⚠️ **Ahí termina esta skill y empieza SiteIndex.** SmartDefaults resuelve el arranque en el
 navegador: qué tema y qué idioma ve el visitante al entrar. Lo que decide si esas versiones existen
 para el buscador es otra cosa: qué URLs hay, el `hreflang` con enlaces de ida y vuelta, y que el
-`canonical` de cada idioma apunte a sí mismo y no a otro. Eso es la fase 6 de **WebIndex**. Y ojo,
+`canonical` de cada idioma apunte a sí mismo y no a otro. Eso es la fase 5 de **SiteIndex**. Y ojo,
 porque los dos lados dicen lo mismo por motivos distintos: aquí no se redirige porque rompe el
 botón "atrás" y los marcadores; allí, porque Googlebot rastrea sin cabecera `Accept-Language` y
 sobre todo desde IPs de Estados Unidos, así que una redirección automática lo deja siempre en la
@@ -136,5 +139,5 @@ mismo sin una sola línea de JavaScript.
 - `plantillas/vanilla/boot-prefs.html`, Tier B (tema con override manual) más idioma completo,
   comentada para entender el porqué de cada línea. Usar solo la mitad de idioma si el tema ya se
   resolvió con Tier A.
-- Skill **WebIndex**, fase 6, para la otra mitad del idioma: estructura de URL, `hreflang` y por
+- Skill **SiteIndex**, fase 5, para la otra mitad del idioma: estructura de URL, `hreflang` y por
   qué la redirección automática rompe la indexación.
